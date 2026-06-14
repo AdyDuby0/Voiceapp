@@ -1,6 +1,6 @@
 "use client";
 
-import { LiveKitRoom } from "@livekit/components-react";
+import { LiveKitRoom, RoomAudioRenderer } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import { readDisplayName, rememberDisplayName } from "@/lib/displayName";
 import { NamePrompt } from "./NamePrompt";
 import { RoomHeader } from "./RoomHeader";
 import { ParticipantList } from "./ParticipantList";
+import { ControlBar } from "./ControlBar";
 import { Button } from "./ui/Button";
 
 export function RoomClient({ code }: { code: string }) {
@@ -64,16 +65,18 @@ export function RoomClient({ code }: { code: string }) {
       serverUrl={conn.url}
       token={conn.token}
       connect
-      // Voice is enabled in the next milestone.
-      audio={false}
+      audio // publish the microphone on join
       video={false}
       className="flex min-h-screen flex-col"
       onDisconnected={() => router.push("/")}
     >
+      {/* Plays everyone else's audio. */}
+      <RoomAudioRenderer />
       <RoomHeader code={code} />
       <div className="mx-auto w-full max-w-4xl flex-1 px-5 py-6">
         <ParticipantList />
       </div>
+      <ControlBar />
     </LiveKitRoom>
   );
 }
