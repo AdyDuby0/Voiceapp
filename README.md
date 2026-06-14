@@ -69,6 +69,9 @@ Swap the local Docker LiveKit server for [LiveKit Cloud](https://livekit.io/)
 (free tier) — only the env URL/keys change, no code changes. Host the Next.js
 app on Vercel, or bundle it as a desktop app with Tauri.
 
+See **[DEPLOY.md](./DEPLOY.md)** for a step-by-step guide to going live on
+Vercel + LiveKit Cloud so anyone can join from any device.
+
 ## Project layout
 
 ```
