@@ -16,6 +16,9 @@ voice, presence, "who's speaking", and text chat.
 
 ## Quick start
 
+> **On Windows?** See [SETUP-WINDOWS.md](./SETUP-WINDOWS.md) for a beginner-friendly
+> guide — after a one-time setup you just double-click `start-windows.bat`.
+
 ### 1. Install dependencies
 
 ```bash
