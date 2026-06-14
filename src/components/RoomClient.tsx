@@ -7,9 +7,7 @@ import { useRouter } from "next/navigation";
 import { useRoomConnection } from "@/hooks/useRoomConnection";
 import { readDisplayName, rememberDisplayName } from "@/lib/displayName";
 import { NamePrompt } from "./NamePrompt";
-import { RoomHeader } from "./RoomHeader";
-import { ParticipantList } from "./ParticipantList";
-import { ControlBar } from "./ControlBar";
+import { RoomShell } from "./RoomShell";
 import { Button } from "./ui/Button";
 
 export function RoomClient({ code }: { code: string }) {
@@ -67,16 +65,11 @@ export function RoomClient({ code }: { code: string }) {
       connect
       audio // publish the microphone on join
       video={false}
-      className="flex min-h-screen flex-col"
       onDisconnected={() => router.push("/")}
     >
       {/* Plays everyone else's audio. */}
       <RoomAudioRenderer />
-      <RoomHeader code={code} />
-      <div className="mx-auto w-full max-w-4xl flex-1 px-5 py-6">
-        <ParticipantList />
-      </div>
-      <ControlBar />
+      <RoomShell code={code} />
     </LiveKitRoom>
   );
 }
