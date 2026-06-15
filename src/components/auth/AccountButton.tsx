@@ -1,17 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { LogOut, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import { AuthModal } from "./AuthModal";
+import { ProfileModal } from "./ProfileModal";
 import { Avatar } from "../ui/Avatar";
 import { Button } from "../ui/Button";
 
-// Top-right account control: a "Log in / Sign up" button when signed out, or the
-// user's avatar + name with a log-out option when signed in.
+// Top-right account control: a "Create account / Log in" button when signed out,
+// or the user's avatar + name (click to open the profile panel) when signed in.
 export function AccountButton() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const [modalMode, setModalMode] = useState<"login" | "signup" | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   if (loading) {
     return <div className="h-9 w-24 animate-pulse rounded-xl bg-white/5" />;
@@ -19,20 +21,19 @@ export function AccountButton() {
 
   if (user) {
     return (
-      <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-ink-800/70 py-1 pl-1 pr-2 backdrop-blur">
-        <Avatar name={user.username} size={28} />
-        <span className="max-w-[8rem] truncate text-sm font-medium text-slate-100">
-          {user.username}
-        </span>
+      <>
         <button
-          onClick={logout}
-          className="ml-1 text-slate-400 transition-colors hover:text-white"
-          aria-label="Log out"
-          title="Log out"
+          onClick={() => setProfileOpen(true)}
+          className="flex items-center gap-2 rounded-xl border border-white/10 bg-ink-800/70 py-1 pl-1 pr-3 backdrop-blur transition-colors hover:bg-ink-700"
+          title="Profile"
         >
-          <LogOut size={16} />
+          <Avatar name={user.username} src={user.avatarUrl} size={28} />
+          <span className="max-w-[8rem] truncate text-sm font-medium text-slate-100">
+            {user.username}
+          </span>
         </button>
-      </div>
+        {profileOpen && <ProfileModal onClose={() => setProfileOpen(false)} />}
+      </>
     );
   }
 

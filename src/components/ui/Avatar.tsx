@@ -30,13 +30,31 @@ function initials(name: string): string {
 
 export function Avatar({
   name,
+  src,
   size = 40,
   className,
 }: {
   name: string;
+  src?: string | null;
   size?: number;
   className?: string;
 }) {
+  // Show the uploaded picture when there is one; otherwise fall back to colored
+  // initials (used for guests and members without a picture).
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={name}
+        width={size}
+        height={size}
+        className={cn("shrink-0 rounded-full object-cover", className)}
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
   return (
     <div
       className={cn(

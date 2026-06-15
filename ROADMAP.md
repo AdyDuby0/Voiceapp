@@ -22,6 +22,10 @@ Planned next phase of work. Captured for later — **not yet built or deployed.*
   button + modal (username, password, confirm). Supabase-backed register/login/
   logout/me routes with bcrypt-hashed passwords, unique case-insensitive
   usernames, and a signed httpOnly session cookie (jose). Guests still join freely.
+- **Phase 3 — Profile pictures.** Click the account chip → profile panel → upload
+  a picture (PNG/JPEG/WebP/GIF, max 2 MB). Stored in a public Supabase Storage
+  bucket (auto-created on first upload — no manual setup). Avatar component shows
+  the image with an initials fallback.
 
 ## The new mental model
 
