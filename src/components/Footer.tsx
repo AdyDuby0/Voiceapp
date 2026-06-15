@@ -18,8 +18,7 @@ export function Footer() {
           <div className="max-w-xs">
             <p className="text-base font-semibold text-white">{SITE_NAME}</p>
             <p className="mt-1 text-sm text-slate-400">
-              Talk together, instantly. A friendlier alternative to Discord and
-              TeamSpeak.
+              Talk together, instantly. A friendlier way to hang out by voice.
             </p>
             <a
               href={DONATION_URL}

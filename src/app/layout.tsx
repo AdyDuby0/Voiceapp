@@ -5,7 +5,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 export const metadata: Metadata = {
   title: "Voiceapp — talk together, instantly",
   description:
-    "A friendlier alternative to Discord and TeamSpeak. Join a voice and text room by link — no install, no account.",
+    "Join a voice and text room by link — no install, no account. A friendlier way to hang out by voice.",
 };
 
 export default function RootLayout({

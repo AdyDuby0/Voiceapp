@@ -5,6 +5,7 @@ import { Check, Copy, LogOut, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/Button";
 import { RoomCapacityControl } from "./RoomCapacityControl";
+import { MessagesButton } from "./dm/MessagesButton";
 
 // Room header: shows the code and a one-click "copy link" — the join-by-link
 // differentiator — plus a leave button. The owner gets a capacity editor.
@@ -45,6 +46,8 @@ export function RoomHeader({
         </span>
       </div>
       <div className="flex items-center gap-2">
+        {/* Logged-in users can open their DMs without leaving the room. */}
+        <MessagesButton />
         {isOwner ? (
           <RoomCapacityControl
             code={code}

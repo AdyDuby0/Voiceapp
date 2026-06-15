@@ -45,18 +45,17 @@ export default function Home() {
           the footer peeking at the bottom to invite scrolling. */}
       <main className="relative mx-auto flex min-h-[calc(100svh-1.75rem)] max-w-5xl flex-col items-center justify-center gap-12 px-6 py-16 lg:flex-row lg:gap-20">
       <section className="max-w-md">
-        <h1 className="pb-1 text-4xl font-bold leading-[1.15] tracking-tight text-white sm:text-5xl">
+        <h1 className="pb-2 text-4xl font-bold leading-[1.25] tracking-tight text-white sm:text-5xl">
           Talk together,
-          <span className="inline-block bg-gradient-to-r from-accent-soft to-accent-glow bg-clip-text pb-1 text-transparent">
+          <span className="inline-block bg-gradient-to-r from-accent-soft to-accent-glow bg-clip-text pb-2 leading-[1.25] text-transparent">
             {" "}
             instantly
           </span>
           .
         </h1>
         <p className="mt-4 text-lg text-slate-400">
-          A friendlier alternative to Discord and TeamSpeak. Spin up a room,
-          share the link, and you&apos;re talking — with clean design and
-          rock-solid voice.
+          A friendlier way to hang out by voice. Spin up a room, share the link,
+          and you&apos;re talking — with clean design and rock-solid voice.
         </p>
 
         <div className="mt-8 flex flex-col gap-5">
