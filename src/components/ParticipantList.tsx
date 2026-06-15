@@ -1,37 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import {
   useParticipants,
   useLocalParticipant,
 } from "@livekit/components-react";
 import { ParticipantTile } from "./ParticipantTile";
-import { useAuth } from "./auth/AuthProvider";
 
 // Live presence grid. useParticipants() re-renders on join/leave, so this stays
 // in sync automatically as people come and go. If the current user owns this
 // room, each remote tile gets a "remove" control.
-export function ParticipantList({ code }: { code: string }) {
+export function ParticipantList({
+  code,
+  isOwner,
+}: {
+  code: string;
+  isOwner: boolean;
+}) {
   const participants = useParticipants();
   const { localParticipant } = useLocalParticipant();
-  const { user } = useAuth();
-  const [ownerId, setOwnerId] = useState<string | null>(null);
-
-  // Find out who owns this room (null for basic/guest rooms).
-  useEffect(() => {
-    let active = true;
-    fetch(`/api/rooms/${code}`, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((d) => {
-        if (active) setOwnerId(d.room?.ownerId ?? null);
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, [code]);
-
-  const isOwner = !!user && ownerId === user.id;
 
   const kick = useCallback(
     async (identity: string) => {

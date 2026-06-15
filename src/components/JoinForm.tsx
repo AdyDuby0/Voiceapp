@@ -13,13 +13,15 @@ import {
 } from "@/lib/roomCode";
 import { rememberDisplayName } from "@/lib/displayName";
 import { useAuth } from "./auth/AuthProvider";
+import { CapacitySelector } from "./CapacitySelector";
 
 export function JoinForm() {
   const router = useRouter();
   const { user } = useAuth();
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
-  const [capacity, setCapacity] = useState(""); // "" = no limit
+  const [unlimited, setUnlimited] = useState(true);
+  const [limit, setLimit] = useState("5");
   const [error, setError] = useState<string | null>(null);
 
   function go(targetCode: string) {
@@ -40,11 +42,16 @@ export function JoinForm() {
     const newCode = generateRoomCode();
     // Logged-in users own the room they create (enabling capacity + kicking).
     if (user) {
+      const maxParticipants = unlimited ? null : Number(limit);
+      if (!unlimited && (!Number.isFinite(maxParticipants!) || maxParticipants! < 2)) {
+        setError("Custom capacity must be at least 2.");
+        return;
+      }
       try {
         const res = await fetch("/api/rooms", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: newCode, maxParticipants: capacity || null }),
+          body: JSON.stringify({ code: newCode, maxParticipants }),
         });
         if (!res.ok) {
           const data = await res.json();
@@ -96,22 +103,14 @@ export function JoinForm() {
       )}
 
       {user && (
-        <div className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-ink-800 px-3 py-2 text-sm">
-          <label htmlFor="capacity" className="text-slate-400">
-            Room capacity
-          </label>
-          <select
-            id="capacity"
-            value={capacity}
-            onChange={(e) => setCapacity(e.target.value)}
-            className="rounded-lg border border-white/10 bg-ink-700 px-2 py-1 text-slate-100 focus:outline-none"
-          >
-            <option value="">No limit</option>
-            <option value="2">2 people</option>
-            <option value="5">5 people</option>
-            <option value="10">10 people</option>
-            <option value="25">25 people</option>
-          </select>
+        <div className="rounded-xl border border-white/10 bg-ink-800 p-3">
+          <p className="mb-2 text-xs font-medium text-slate-400">Room capacity</p>
+          <CapacitySelector
+            unlimited={unlimited}
+            setUnlimited={setUnlimited}
+            limit={limit}
+            setLimit={setLimit}
+          />
         </div>
       )}
 

@@ -3,6 +3,7 @@ import { JoinForm } from "@/components/JoinForm";
 import { Footer } from "@/components/Footer";
 import { AccountButton } from "@/components/auth/AccountButton";
 import { MessagesButton } from "@/components/dm/MessagesButton";
+import { UpdateLog } from "@/components/UpdateLog";
 
 function Feature({
   icon,
@@ -29,7 +30,12 @@ function Feature({
 export default function Home() {
   return (
     <>
-      {/* Account + messages controls, top-right. The rest of the page is unchanged. */}
+      {/* Update log, top-left. */}
+      <div className="absolute left-4 top-4 z-10">
+        <UpdateLog />
+      </div>
+
+      {/* Account + messages controls, top-right. */}
       <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
         <MessagesButton />
         <AccountButton />
@@ -39,13 +45,9 @@ export default function Home() {
           the footer peeking at the bottom to invite scrolling. */}
       <main className="relative mx-auto flex min-h-[calc(100svh-1.75rem)] max-w-5xl flex-col items-center justify-center gap-12 px-6 py-16 lg:flex-row lg:gap-20">
       <section className="max-w-md">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          No install · No account
-        </div>
-        <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        <h1 className="pb-1 text-4xl font-bold leading-[1.15] tracking-tight text-white sm:text-5xl">
           Talk together,
-          <span className="bg-gradient-to-r from-accent-soft to-accent-glow bg-clip-text text-transparent">
+          <span className="inline-block bg-gradient-to-r from-accent-soft to-accent-glow bg-clip-text pb-1 text-transparent">
             {" "}
             instantly
           </span>

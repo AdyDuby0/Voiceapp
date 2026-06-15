@@ -1,13 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, LogOut } from "lucide-react";
+import { Check, Copy, LogOut, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/Button";
+import { RoomCapacityControl } from "./RoomCapacityControl";
 
 // Room header: shows the code and a one-click "copy link" — the join-by-link
-// differentiator — plus a leave button.
-export function RoomHeader({ code }: { code: string }) {
+// differentiator — plus a leave button. The owner gets a capacity editor.
+export function RoomHeader({
+  code,
+  isOwner,
+  maxParticipants,
+  onCapacityChange,
+}: {
+  code: string;
+  isOwner: boolean;
+  maxParticipants: number | null;
+  onCapacityChange: () => void;
+}) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
 
@@ -34,6 +45,20 @@ export function RoomHeader({ code }: { code: string }) {
         </span>
       </div>
       <div className="flex items-center gap-2">
+        {isOwner ? (
+          <RoomCapacityControl
+            code={code}
+            maxParticipants={maxParticipants}
+            onChange={onCapacityChange}
+          />
+        ) : (
+          maxParticipants != null && (
+            <span className="flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-ink-700 px-2.5 text-sm text-slate-400">
+              <Users size={14} />
+              Max {maxParticipants}
+            </span>
+          )
+        )}
         <Button variant="secondary" size="sm" onClick={copyLink}>
           {copied ? <Check size={15} /> : <Copy size={15} />}
           {copied ? "Copied!" : "Copy link"}

@@ -39,6 +39,12 @@ Planned next phase of work. Captured for later — **not yet built or deployed.*
   set a capacity; the token route enforces capacity + bans. Owners see a remove
   control on each participant tile (members are also banned from rejoining).
   Needs the `rooms` and `room_bans` tables (see SUPABASE-SETUP.md).
+- **Editable in-room capacity.** Create-room form and an owner-only header
+  control use an Unlimited/Custom toggle. Lowering the cap below the current head
+  count prompts to confirm, then removes the required number of people at random
+  (never the owner). Route: POST /api/rooms/[code]/capacity.
+- **Landing tweaks.** Buy Me a Coffee donation link, "Updates" changelog button
+  (top-left), fixed the clipped title, removed the badge above it.
 
 ## The new mental model
 
