@@ -19,3 +19,27 @@ export type AccountUser = {
   username: string;
   avatarUrl: string | null;
 };
+
+// A user as shown in search results / conversation headers.
+export type UserSummary = {
+  id: string;
+  username: string;
+  avatarUrl: string | null;
+};
+
+// A single direct message between two users.
+export type DirectMessage = {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  body: string;
+  createdAt: string; // ISO timestamp
+};
+
+// One row in the DM inbox: who you're talking to + a preview of the last message.
+export type ConversationSummary = {
+  user: UserSummary;
+  lastMessage: string;
+  lastAt: string;
+  fromMe: boolean;
+};

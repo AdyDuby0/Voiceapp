@@ -26,6 +26,10 @@ Planned next phase of work. Captured for later — **not yet built or deployed.*
   a picture (PNG/JPEG/WebP/GIF, max 2 MB). Stored in a public Supabase Storage
   bucket (auto-created on first upload — no manual setup). Avatar component shows
   the image with an initials fallback.
+- **Phase 4 — Direct messages.** Top-right Messages button (logged-in users) →
+  panel with a user search + conversation inbox → per-person chat. Delivery is by
+  short-interval polling (works with our custom auth; no Supabase Realtime/RLS
+  needed). Needs the `messages` table (see SUPABASE-SETUP.md).
 
 ## The new mental model
 

@@ -2,6 +2,7 @@ import { Mic, MessagesSquare, Link2 } from "lucide-react";
 import { JoinForm } from "@/components/JoinForm";
 import { Footer } from "@/components/Footer";
 import { AccountButton } from "@/components/auth/AccountButton";
+import { MessagesButton } from "@/components/dm/MessagesButton";
 
 function Feature({
   icon,
@@ -28,8 +29,9 @@ function Feature({
 export default function Home() {
   return (
     <>
-      {/* Account control, top-right. The rest of the page is unchanged. */}
-      <div className="absolute right-4 top-4 z-10">
+      {/* Account + messages controls, top-right. The rest of the page is unchanged. */}
+      <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
+        <MessagesButton />
         <AccountButton />
       </div>
 

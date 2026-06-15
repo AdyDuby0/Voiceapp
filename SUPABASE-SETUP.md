@@ -50,6 +50,28 @@ create unique index if not exists users_username_lower_idx
 (Tables for rooms, bans, and DMs get added in their later phases — one short
 script each.)
 
+### Direct messages table (for the DM feature)
+
+When you're ready to use direct messages, run this second script the same way
+(**SQL Editor → New query → Run**):
+
+```sql
+-- Direct messages between two users.
+create table if not exists public.messages (
+  id           uuid primary key default gen_random_uuid(),
+  sender_id    uuid not null references public.users(id) on delete cascade,
+  recipient_id uuid not null references public.users(id) on delete cascade,
+  body         text not null,
+  created_at   timestamptz not null default now()
+);
+
+-- Indexes for fast conversation lookups in both directions.
+create index if not exists messages_pair_idx
+  on public.messages (sender_id, recipient_id, created_at);
+create index if not exists messages_recipient_idx
+  on public.messages (recipient_id, created_at);
+```
+
 ## 4. Fill in your local env file
 
 Open `.env.local` (copy it from `.env.example` if you haven't) and set:
