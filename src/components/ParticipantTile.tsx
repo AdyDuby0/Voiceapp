@@ -3,18 +3,23 @@
 import { useMemo } from "react";
 import { useIsSpeaking } from "@livekit/components-react";
 import type { Participant } from "livekit-client";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, UserX } from "lucide-react";
 import { Avatar } from "./ui/Avatar";
 import { cn } from "./ui/cn";
 
 // One participant in the room: avatar, name, live speaking ring, and mic state.
 // `isSpeaking` and mic state come from LiveKit events (reactive), never polled.
+// When `canKick` is set (the viewer owns the room), a remove control is shown.
 export function ParticipantTile({
   participant,
   isLocal,
+  canKick = false,
+  onKick,
 }: {
   participant: Participant;
   isLocal: boolean;
+  canKick?: boolean;
+  onKick?: () => void;
 }) {
   const isSpeaking = useIsSpeaking(participant);
   const name = participant.name || participant.identity;
@@ -33,12 +38,22 @@ export function ParticipantTile({
   return (
     <div
       className={cn(
-        "flex flex-col items-center gap-2 rounded-2xl border p-4 transition-colors",
+        "relative flex flex-col items-center gap-2 rounded-2xl border p-4 transition-colors",
         isSpeaking
           ? "border-accent-glow/70 bg-accent/10"
           : "border-white/5 bg-ink-700/50",
       )}
     >
+      {canKick && (
+        <button
+          onClick={onKick}
+          className="absolute right-2 top-2 rounded-lg p-1 text-slate-500 transition-colors hover:bg-red-500/15 hover:text-red-400"
+          aria-label={`Remove ${name}`}
+          title="Remove from room"
+        >
+          <UserX size={15} />
+        </button>
+      )}
       <div
         className={cn(
           "rounded-full",

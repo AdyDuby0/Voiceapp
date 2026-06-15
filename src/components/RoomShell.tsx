@@ -16,7 +16,7 @@ export function RoomShell({ code }: { code: string }) {
       <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
         <main className="flex-1 overflow-y-auto p-5">
           <div className="mx-auto max-w-3xl">
-            <ParticipantList />
+            <ParticipantList code={code} />
           </div>
         </main>
 

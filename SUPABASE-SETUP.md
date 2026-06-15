@@ -72,6 +72,40 @@ create index if not exists messages_recipient_idx
   on public.messages (recipient_id, created_at);
 ```
 
+### Friends + rooms tables (friend-gated DMs, room capacity & kicking)
+
+Run this once for the friend system, room capacity limits, and the kick feature:
+
+```sql
+-- Friend requests / friendships (status: pending | accepted).
+create table if not exists public.friend_requests (
+  id           uuid primary key default gen_random_uuid(),
+  requester_id uuid not null references public.users(id) on delete cascade,
+  addressee_id uuid not null references public.users(id) on delete cascade,
+  status       text not null default 'pending',
+  created_at   timestamptz not null default now(),
+  unique (requester_id, addressee_id)
+);
+create index if not exists friend_requests_addressee_idx
+  on public.friend_requests (addressee_id, status);
+
+-- Owned rooms (capacity + moderation). max_participants null = no limit.
+create table if not exists public.rooms (
+  code             text primary key,
+  owner_id         uuid not null references public.users(id) on delete cascade,
+  max_participants int,
+  created_at       timestamptz not null default now()
+);
+
+-- People removed/banned from a room (can't rejoin).
+create table if not exists public.room_bans (
+  room_code  text not null,
+  user_id    uuid not null references public.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (room_code, user_id)
+);
+```
+
 ## 4. Fill in your local env file
 
 Open `.env.local` (copy it from `.env.example` if you haven't) and set:

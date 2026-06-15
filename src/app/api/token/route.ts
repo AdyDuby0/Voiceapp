@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createJoinToken } from "@/lib/livekit";
+import { createJoinToken, getRoomService } from "@/lib/livekit";
 import { getPublicLiveKitUrl } from "@/lib/config";
 import { normalizeRoomCode, isValidRoomCode } from "@/lib/roomCode";
 import { readSession } from "@/lib/auth";
@@ -55,6 +55,51 @@ export async function POST(req: NextRequest) {
     displayName = name;
     // Unique per session so the same name can join from two tabs.
     identity = `${name}__${crypto.randomUUID().slice(0, 8)}`;
+  }
+
+  // For owned rooms, enforce bans and capacity. Basic/guest rooms have no record
+  // and skip this entirely.
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: roomRow } = await supabase
+      .from("rooms")
+      .select("max_participants")
+      .eq("code", room)
+      .maybeSingle();
+
+    if (roomRow) {
+      if (session) {
+        const { data: ban } = await supabase
+          .from("room_bans")
+          .select("room_code")
+          .eq("room_code", room)
+          .eq("user_id", session.userId)
+          .maybeSingle();
+        if (ban) {
+          return NextResponse.json(
+            { error: "You have been removed from this room." },
+            { status: 403 },
+          );
+        }
+      }
+
+      if (roomRow.max_participants) {
+        try {
+          const present = await getRoomService().listParticipants(room);
+          const alreadyIn = present.some((p) => p.identity === identity);
+          if (!alreadyIn && present.length >= roomRow.max_participants) {
+            return NextResponse.json(
+              { error: "This room is full." },
+              { status: 403 },
+            );
+          }
+        } catch {
+          // Room not created in LiveKit yet (0 participants) — allow.
+        }
+      }
+    }
+  } catch {
+    // Supabase not configured / unreachable — fall back to no enforcement.
   }
 
   try {

@@ -19,6 +19,7 @@ export function JoinForm() {
   const { user } = useAuth();
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
+  const [capacity, setCapacity] = useState(""); // "" = no limit
   const [error, setError] = useState<string | null>(null);
 
   function go(targetCode: string) {
@@ -34,9 +35,28 @@ export function JoinForm() {
     router.push(`/room/${targetCode}`);
   }
 
-  function handleCreate() {
+  async function handleCreate() {
     setError(null);
-    go(generateRoomCode());
+    const newCode = generateRoomCode();
+    // Logged-in users own the room they create (enabling capacity + kicking).
+    if (user) {
+      try {
+        const res = await fetch("/api/rooms", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: newCode, maxParticipants: capacity || null }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          setError(data.error ?? "Could not create the room.");
+          return;
+        }
+      } catch {
+        setError("Network error while creating the room.");
+        return;
+      }
+    }
+    go(newCode);
   }
 
   function handleJoin(e: React.FormEvent) {
@@ -72,6 +92,26 @@ export function JoinForm() {
             maxLength={24}
             autoFocus
           />
+        </div>
+      )}
+
+      {user && (
+        <div className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-ink-800 px-3 py-2 text-sm">
+          <label htmlFor="capacity" className="text-slate-400">
+            Room capacity
+          </label>
+          <select
+            id="capacity"
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+            className="rounded-lg border border-white/10 bg-ink-700 px-2 py-1 text-slate-100 focus:outline-none"
+          >
+            <option value="">No limit</option>
+            <option value="2">2 people</option>
+            <option value="5">5 people</option>
+            <option value="10">10 people</option>
+            <option value="25">25 people</option>
+          </select>
         </div>
       )}
 

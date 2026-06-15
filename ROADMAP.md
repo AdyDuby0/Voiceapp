@@ -30,6 +30,15 @@ Planned next phase of work. Captured for later — **not yet built or deployed.*
   panel with a user search + conversation inbox → per-person chat. Delivery is by
   short-interval polling (works with our custom auth; no Supabase Realtime/RLS
   needed). Needs the `messages` table (see SUPABASE-SETUP.md).
+- **Room identity for members.** Logged-in users join rooms as their account
+  (username + profile picture, via LiveKit participant metadata). Guests still
+  type a name.
+- **Friend-gated DMs.** `friend_requests` table; add/accept/decline flow in the
+  Messages panel; sending a DM requires an accepted friendship.
+- **Room ownership, capacity & kick.** Logged-in creators own their room and can
+  set a capacity; the token route enforces capacity + bans. Owners see a remove
+  control on each participant tile (members are also banned from rejoining).
+  Needs the `rooms` and `room_bans` tables (see SUPABASE-SETUP.md).
 
 ## The new mental model
 
