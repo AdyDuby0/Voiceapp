@@ -1,6 +1,7 @@
 import { Mic, MessagesSquare, Link2 } from "lucide-react";
 import { JoinForm } from "@/components/JoinForm";
 import { Footer } from "@/components/Footer";
+import { AccountButton } from "@/components/auth/AccountButton";
 
 function Feature({
   icon,
@@ -27,9 +28,14 @@ function Feature({
 export default function Home() {
   return (
     <>
+      {/* Account control, top-right. The rest of the page is unchanged. */}
+      <div className="absolute right-4 top-4 z-10">
+        <AccountButton />
+      </div>
+
       {/* The hero fills almost the whole screen, leaving only a thin sliver of
           the footer peeking at the bottom to invite scrolling. */}
-      <main className="mx-auto flex min-h-[calc(100svh-1.75rem)] max-w-5xl flex-col items-center justify-center gap-12 px-6 py-16 lg:flex-row lg:gap-20">
+      <main className="relative mx-auto flex min-h-[calc(100svh-1.75rem)] max-w-5xl flex-col items-center justify-center gap-12 px-6 py-16 lg:flex-row lg:gap-20">
       <section className="max-w-md">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
           <span className="h-2 w-2 rounded-full bg-emerald-400" />

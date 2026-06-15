@@ -18,6 +18,10 @@ Planned next phase of work. Captured for later — **not yet built or deployed.*
 - **Footer + legal + contact + donation.** Below-the-fold footer (thin sliver
   peeks on load), Privacy Policy and Terms pages, contact email
   (voice.app.sup@gmail.com), and a Ko-fi donation button. No backend required.
+- **Phase 1 — Accounts (username/password).** Top-right "Create account / Log in"
+  button + modal (username, password, confirm). Supabase-backed register/login/
+  logout/me routes with bcrypt-hashed passwords, unique case-insensitive
+  usernames, and a signed httpOnly session cookie (jose). Guests still join freely.
 
 ## The new mental model
 

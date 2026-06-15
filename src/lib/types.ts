@@ -12,3 +12,10 @@ export type JoinIntent = {
   name: string;
   code: string;
 };
+
+// A signed-in account as exposed to the browser (never includes the password).
+export type AccountUser = {
+  id: string;
+  username: string;
+  avatarUrl: string | null;
+};
