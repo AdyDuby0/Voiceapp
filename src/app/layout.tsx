@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { CursorGlow } from "@/components/CursorGlow";
 
 export const metadata: Metadata = {
   title: "Voiceapp — talk together, instantly",
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <CursorGlow />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
