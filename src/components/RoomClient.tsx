@@ -6,15 +6,29 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRoomConnection } from "@/hooks/useRoomConnection";
 import { readDisplayName, rememberDisplayName } from "@/lib/displayName";
+import { useAuth } from "./auth/AuthProvider";
 import { NamePrompt } from "./NamePrompt";
 import { RoomShell } from "./RoomShell";
 import { Button } from "./ui/Button";
 
 export function RoomClient({ code }: { code: string }) {
   const router = useRouter();
-  // Lazy init from sessionStorage; null means we need to prompt for a name.
-  const [name, setName] = useState<string | null>(() => readDisplayName());
-  const conn = useRoomConnection(code, name);
+  const { user, loading: authLoading } = useAuth();
+  // Guests use a typed name; logged-in users always join as their account.
+  const [guestName, setGuestName] = useState<string | null>(() =>
+    readDisplayName(),
+  );
+  const name = user ? user.username : guestName;
+  // Don't connect or prompt until we know whether someone is logged in.
+  const conn = useRoomConnection(code, authLoading ? null : name);
+
+  if (authLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center">
+        <p className="animate-pulse text-sm text-slate-400">Loading…</p>
+      </main>
+    );
+  }
 
   if (!name) {
     return (
@@ -22,7 +36,7 @@ export function RoomClient({ code }: { code: string }) {
         code={code}
         onSubmit={(n) => {
           rememberDisplayName(n);
-          setName(n);
+          setGuestName(n);
         }}
       />
     );

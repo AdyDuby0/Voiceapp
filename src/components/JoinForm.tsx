@@ -5,26 +5,32 @@ import { useState } from "react";
 import { LogIn, Plus } from "lucide-react";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
+import { Avatar } from "./ui/Avatar";
 import {
   generateRoomCode,
   isValidRoomCode,
   normalizeRoomCode,
 } from "@/lib/roomCode";
 import { rememberDisplayName } from "@/lib/displayName";
+import { useAuth } from "./auth/AuthProvider";
 
 export function JoinForm() {
   const router = useRouter();
+  const { user } = useAuth();
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   function go(targetCode: string) {
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      setError("Please enter a display name.");
-      return;
+    // Logged-in users join as their account, so no display name is needed.
+    if (!user) {
+      const trimmedName = name.trim();
+      if (!trimmedName) {
+        setError("Please enter a display name.");
+        return;
+      }
+      rememberDisplayName(trimmedName);
     }
-    rememberDisplayName(trimmedName);
     router.push(`/room/${targetCode}`);
   }
 
@@ -46,18 +52,28 @@ export function JoinForm() {
 
   return (
     <form onSubmit={handleJoin} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-slate-400">
-          Your display name
-        </label>
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="e.g. Alex"
-          maxLength={24}
-          autoFocus
-        />
-      </div>
+      {user ? (
+        <div className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-ink-800 px-3 py-2.5">
+          <Avatar name={user.username} src={user.avatarUrl} size={32} />
+          <div className="text-sm">
+            <span className="text-slate-400">Joining as </span>
+            <span className="font-medium text-slate-100">{user.username}</span>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-slate-400">
+            Your display name
+          </label>
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Alex"
+            maxLength={24}
+            autoFocus
+          />
+        </div>
+      )}
 
       <Button type="button" size="lg" onClick={handleCreate}>
         <Plus size={18} />

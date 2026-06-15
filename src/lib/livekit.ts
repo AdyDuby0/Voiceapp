@@ -3,10 +3,12 @@ import { getServerLiveKitConfig } from "./config";
 
 // Mints a signed LiveKit join token. MUST run server-side only — it uses the
 // API secret, which must never reach the browser. Called from /api/token.
+// `avatarUrl` is embedded in participant metadata so others can show the picture.
 export async function createJoinToken(
   roomCode: string,
   identity: string,
   displayName: string,
+  avatarUrl?: string | null,
 ): Promise<string> {
   const { apiKey, apiSecret } = getServerLiveKitConfig();
 
@@ -14,6 +16,7 @@ export async function createJoinToken(
     identity,
     name: displayName,
     ttl: "2h",
+    metadata: JSON.stringify({ avatarUrl: avatarUrl ?? null }),
   });
 
   at.addGrant({

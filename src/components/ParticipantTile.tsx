@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useIsSpeaking } from "@livekit/components-react";
 import type { Participant } from "livekit-client";
 import { Mic, MicOff } from "lucide-react";
@@ -19,6 +20,15 @@ export function ParticipantTile({
   const name = participant.name || participant.identity;
   // isMicrophoneEnabled reflects whether an unmuted mic track is published.
   const micOn = participant.isMicrophoneEnabled;
+  // Logged-in users carry their profile picture in participant metadata.
+  const avatarUrl = useMemo(() => {
+    if (!participant.metadata) return null;
+    try {
+      return (JSON.parse(participant.metadata).avatarUrl as string) ?? null;
+    } catch {
+      return null;
+    }
+  }, [participant.metadata]);
 
   return (
     <div
@@ -35,7 +45,7 @@ export function ParticipantTile({
           isSpeaking && "animate-speak-pulse ring-2 ring-accent-glow",
         )}
       >
-        <Avatar name={name} size={56} />
+        <Avatar name={name} src={avatarUrl} size={56} />
       </div>
 
       <div className="flex max-w-full items-center gap-1.5">
