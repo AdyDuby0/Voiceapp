@@ -1,36 +1,43 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { X, Search } from "lucide-react";
+import { X, Search, UserPlus, Check, Clock } from "lucide-react";
 import { Avatar } from "../ui/Avatar";
 import { Input } from "../ui/Input";
+import { Button } from "../ui/Button";
 import { ConversationView } from "./ConversationView";
-import type { ConversationSummary, UserSummary } from "@/lib/types";
+import type { FriendsData, FriendStatus, UserSummary } from "@/lib/types";
+
+const EMPTY: FriendsData = { friends: [], incoming: [], outgoing: [] };
 
 export function DmPanel({ onClose }: { onClose: () => void }) {
   const [activeUser, setActiveUser] = useState<UserSummary | null>(null);
-  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [data, setData] = useState<FriendsData>(EMPTY);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<UserSummary[]>([]);
 
-  const loadInbox = useCallback(async () => {
+  const loadFriends = useCallback(async () => {
     try {
-      const res = await fetch("/api/dm", { cache: "no-store" });
+      const res = await fetch("/api/friends", { cache: "no-store" });
       if (!res.ok) return;
-      const data = await res.json();
-      setConversations(data.conversations ?? []);
+      const d = await res.json();
+      setData({
+        friends: d.friends ?? [],
+        incoming: d.incoming ?? [],
+        outgoing: d.outgoing ?? [],
+      });
     } catch {
-      // ignore; user can reopen
+      // ignore
     }
   }, []);
 
-  // Refresh the inbox while the list is visible.
+  // Refresh friends/requests while the list is visible.
   useEffect(() => {
     if (activeUser) return;
-    loadInbox();
-    const timer = setInterval(loadInbox, 5000);
+    loadFriends();
+    const timer = setInterval(loadFriends, 5000);
     return () => clearInterval(timer);
-  }, [activeUser, loadInbox]);
+  }, [activeUser, loadFriends]);
 
   // Search users as you type.
   useEffect(() => {
@@ -46,8 +53,8 @@ export function DmPanel({ onClose }: { onClose: () => void }) {
           cache: "no-store",
         });
         if (!res.ok || !active) return;
-        const data = await res.json();
-        setResults(data.users ?? []);
+        const d = await res.json();
+        setResults(d.users ?? []);
       } catch {
         if (active) setResults([]);
       }
@@ -58,10 +65,29 @@ export function DmPanel({ onClose }: { onClose: () => void }) {
     };
   }, [query]);
 
-  function openConversation(user: UserSummary) {
-    setQuery("");
-    setResults([]);
-    setActiveUser(user);
+  function statusOf(userId: string): FriendStatus {
+    if (data.friends.some((f) => f.id === userId)) return "friend";
+    if (data.incoming.some((i) => i.user.id === userId)) return "incoming";
+    if (data.outgoing.includes(userId)) return "outgoing";
+    return "none";
+  }
+
+  async function addFriend(userId: string) {
+    await fetch("/api/friends/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    loadFriends();
+  }
+
+  async function respond(requestId: string, action: "accept" | "decline") {
+    await fetch("/api/friends/respond", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestId, action }),
+    });
+    loadFriends();
   }
 
   return (
@@ -82,10 +108,7 @@ export function DmPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         {activeUser ? (
-          <ConversationView
-            partner={activeUser}
-            onBack={() => setActiveUser(null)}
-          />
+          <ConversationView partner={activeUser} onBack={() => setActiveUser(null)} />
         ) : (
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="relative p-3">
@@ -96,39 +119,91 @@ export function DmPanel({ onClose }: { onClose: () => void }) {
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search people by username…"
+                placeholder="Find people to add as friends…"
                 className="pl-9"
               />
             </div>
 
             <div className="flex-1 overflow-y-auto px-2 pb-2">
               {query.trim() ? (
+                // --- Search results ---
                 results.length > 0 ? (
-                  results.map((u) => (
-                    <UserRow
-                      key={u.id}
-                      user={u}
-                      onClick={() => openConversation(u)}
-                    />
-                  ))
+                  results.map((u) => {
+                    const status = statusOf(u.id);
+                    return (
+                      <Row key={u.id} user={u}>
+                        {status === "friend" ? (
+                          <Button size="sm" variant="secondary" onClick={() => setActiveUser(u)}>
+                            Message
+                          </Button>
+                        ) : status === "outgoing" ? (
+                          <span className="flex items-center gap-1 text-xs text-slate-500">
+                            <Clock size={13} /> Requested
+                          </span>
+                        ) : status === "incoming" ? (
+                          <Button size="sm" onClick={() => addFriend(u.id)}>
+                            <Check size={14} /> Accept
+                          </Button>
+                        ) : (
+                          <Button size="sm" onClick={() => addFriend(u.id)}>
+                            <UserPlus size={14} /> Add
+                          </Button>
+                        )}
+                      </Row>
+                    );
+                  })
                 ) : (
-                  <p className="mt-6 text-center text-sm text-slate-500">
-                    No users found.
-                  </p>
+                  <p className="mt-6 text-center text-sm text-slate-500">No users found.</p>
                 )
-              ) : conversations.length > 0 ? (
-                conversations.map((c) => (
-                  <UserRow
-                    key={c.user.id}
-                    user={c.user}
-                    subtitle={`${c.fromMe ? "You: " : ""}${c.lastMessage}`}
-                    onClick={() => openConversation(c.user)}
-                  />
-                ))
               ) : (
-                <p className="mt-8 px-4 text-center text-sm text-slate-500">
-                  No conversations yet. Search for someone above to start one.
-                </p>
+                // --- Default view: requests + friends ---
+                <>
+                  {data.incoming.length > 0 && (
+                    <div className="mb-2">
+                      <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Friend requests
+                      </p>
+                      {data.incoming.map((req) => (
+                        <Row key={req.requestId} user={req.user}>
+                          <div className="flex gap-1.5">
+                            <Button size="sm" onClick={() => respond(req.requestId, "accept")}>
+                              Accept
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => respond(req.requestId, "decline")}
+                            >
+                              Decline
+                            </Button>
+                          </div>
+                        </Row>
+                      ))}
+                    </div>
+                  )}
+
+                  <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Friends
+                  </p>
+                  {data.friends.length > 0 ? (
+                    data.friends.map((f) => (
+                      <button
+                        key={f.id}
+                        onClick={() => setActiveUser(f)}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/5"
+                      >
+                        <Avatar name={f.username} src={f.avatarUrl} size={40} />
+                        <span className="truncate text-sm font-medium text-slate-100">
+                          {f.username}
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <p className="mt-4 px-4 text-center text-sm text-slate-500">
+                      No friends yet. Search above to add someone.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -138,29 +213,20 @@ export function DmPanel({ onClose }: { onClose: () => void }) {
   );
 }
 
-function UserRow({
+function Row({
   user,
-  subtitle,
-  onClick,
+  children,
 }: {
   user: UserSummary;
-  subtitle?: string;
-  onClick: () => void;
+  children: React.ReactNode;
 }) {
   return (
-    <button
-      onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/5"
-    >
+    <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
       <Avatar name={user.username} src={user.avatarUrl} size={40} />
-      <div className="min-w-0">
-        <p className="truncate text-sm font-medium text-slate-100">
-          {user.username}
-        </p>
-        {subtitle && (
-          <p className="truncate text-xs text-slate-400">{subtitle}</p>
-        )}
-      </div>
-    </button>
+      <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-100">
+        {user.username}
+      </span>
+      {children}
+    </div>
   );
 }

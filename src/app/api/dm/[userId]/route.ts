@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readSession } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { areFriends } from "@/lib/friends";
 
 const MAX_BODY = 2000;
 
@@ -110,6 +111,14 @@ export async function POST(
   } catch (err) {
     const message = err instanceof Error ? err.message : "Server error.";
     return NextResponse.json({ error: message }, { status: 500 });
+  }
+
+  // You can only message accepted friends.
+  if (!(await areFriends(supabase, me, other))) {
+    return NextResponse.json(
+      { error: "You can only message friends. Send a friend request first." },
+      { status: 403 },
+    );
   }
 
   const { data, error } = await supabase

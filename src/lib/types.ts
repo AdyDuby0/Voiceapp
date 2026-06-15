@@ -43,3 +43,14 @@ export type ConversationSummary = {
   lastAt: string;
   fromMe: boolean;
 };
+
+// Friendship state of another user, from your perspective.
+export type FriendStatus = "friend" | "incoming" | "outgoing" | "none";
+
+export type IncomingRequest = { requestId: string; user: UserSummary };
+
+export type FriendsData = {
+  friends: UserSummary[];
+  incoming: IncomingRequest[];
+  outgoing: string[]; // user ids you've requested
+};
