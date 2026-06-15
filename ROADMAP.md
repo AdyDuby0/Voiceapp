@@ -5,11 +5,19 @@ Planned next phase of work. Captured for later — **not yet built or deployed.*
 ## Decisions made
 
 - **Sign-in model: Hybrid.** Guests can still join by link with just a typed name
-  (the original "no account" magic stays). Signing in with Google unlocks the
-  extras: a saved profile + avatar, owning/moderating rooms, and DMs.
-- **Backend: Supabase (all-in-one)** — provides the database, Google login, file
-  storage (avatars), and realtime (for DMs) in a single service.
+  (the original "no account" magic stays). Creating an account unlocks the extras:
+  a custom profile picture, owning/moderating rooms, and DMs.
+- **Auth: username + password (NOT Google).** Sign up with a username, a password,
+  and a password confirmation. Usernames are unique (enforced by the database).
+  Google sign-in is dropped.
+- **Backend: Supabase (all-in-one)** — provides the database (users, rooms, DMs),
+  file storage (avatars), and realtime (for DMs) in a single service.
 - **Sequencing: phased, DMs last.** Each phase ships on its own.
+
+### Done
+- **Footer + legal + contact + donation.** Below-the-fold footer (thin sliver
+  peeks on load), Privacy Policy and Terms pages, contact email
+  (voice.app.sup@gmail.com), and a Ko-fi donation button. No backend required.
 
 ## The new mental model
 
@@ -40,13 +48,17 @@ can draw avatars and show kick buttons to the right person.
 ## Phases
 
 ### Phase 1 — Accounts + profiles (foundation, the meatiest part)
-- Create a Supabase project; enable Google login (Google Client ID/Secret live in
-  the Supabase dashboard, not in our code).
-- Add a "Sign in with Google" button to the landing page.
-- On first sign-in, create a **profile** row from the Google name + photo.
-- Members get a persistent identity; guests untouched.
-- Files: new Supabase client helper, auth callback route, landing page, and the
-  room join logic so a member's saved profile flows in instead of a typed name.
+- Create a Supabase project; add a **users** table (unique `username`, hashed
+  `password`, `avatar_url`).
+- Top-right "Create account / Log in" entry point on the landing page (the rest of
+  the page stays identical). Sign-up form: username + password + confirm password.
+- Server routes register (reject duplicate usernames, hash the password) and log in
+  (verify, issue a session). Passwords are never stored in plain text.
+- The browser remembers the logged-in user (session); members get a persistent
+  identity; guests untouched.
+- Files: Supabase client helper, `/api/auth/register` + `/api/auth/login` routes,
+  account button + modal UI, and room join logic so a member's saved profile flows
+  in instead of a typed name.
 
 ### Phase 2 — Capacity limit + owner kick
 - Make rooms real records. On create, the member picks a **max size**; we set it on
@@ -57,10 +69,10 @@ can draw avatars and show kick buttons to the right person.
   route, participant tile UI.
 
 ### Phase 3 — Custom profile picture
-- Members already get their Google photo; this adds an **upload** to replace it.
-- Image → Supabase Storage; URL saved on the profile.
+- Members **upload** a profile picture (no Google photo to fall back on now).
+- Image → Supabase Storage; URL saved on the user row.
 - The existing `Avatar` component learns to show a photo when present (keeps the
-  colored-initials fallback for guests).
+  colored-initials fallback for guests and members without a picture).
 - Files: small profile/settings screen, avatar component.
 
 ### Phase 4 — Private messages (last; the big one)
@@ -70,13 +82,13 @@ can draw avatars and show kick buttons to the right person.
 - Simple inbox/conversation UI. **Members only** (can't DM a nameless guest) — which
   is why accounts come first.
 
-## Setup needed (when we start)
+## Setup needed (when we start the account system)
 
 - Free **Supabase** account + project (database URL + keys).
-- **Google OAuth** app in Google Cloud Console (Client ID/Secret), pasted into
-  Supabase — *not* into our code.
 - New env vars (Supabase URL + keys) in `.env.local`, later in Vercel.
-- One-time database table setup — scripted into a single step.
+- One-time database table setup (users, rooms, bans, messages) — scripted into a
+  single step.
+- No Google / OAuth setup needed — auth is username + password.
 
 ## What does NOT change
 
