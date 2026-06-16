@@ -32,29 +32,25 @@ body {
   border-radius: 9999px;
 }
 
-/* Cursor-following glow with a subtle "lens" distortion of what's behind it.
-   Pointer-events none so it never blocks clicks. Hidden on touch devices. */
+/* A soft light glow that follows the cursor. Purely additive light (no blur),
+   so it never affects the readability of anything underneath it. */
 .cursor-glow {
   position: fixed;
   top: 0;
   left: 0;
-  width: 340px;
-  height: 340px;
-  margin: -170px 0 0 -170px; /* center the circle on the cursor */
+  width: 360px;
+  height: 360px;
+  margin: -180px 0 0 -180px; /* center the circle on the cursor */
   pointer-events: none;
   z-index: 9999;
   border-radius: 9999px;
   opacity: 0;
   background: radial-gradient(
     circle,
-    rgba(129, 140, 248, 0.14),
-    rgba(99, 102, 241, 0.06) 45%,
-    transparent 62%
+    rgba(129, 140, 248, 0.12),
+    rgba(99, 102, 241, 0.05) 45%,
+    transparent 65%
   );
-  backdrop-filter: blur(2.5px);
-  -webkit-backdrop-filter: blur(2.5px);
-  -webkit-mask: radial-gradient(circle, #000 32%, transparent 66%);
-  mask: radial-gradient(circle, #000 32%, transparent 66%);
   transition: opacity 0.4s ease;
   will-change: transform;
 }
