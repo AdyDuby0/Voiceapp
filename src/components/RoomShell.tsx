@@ -16,7 +16,7 @@ export function RoomShell({ code }: { code: string }) {
   const isOwner = !!user && !!info && info.ownerId === user.id;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-[100dvh] flex-col">
       <RoomHeader
         code={code}
         isOwner={isOwner}
@@ -24,14 +24,14 @@ export function RoomShell({ code }: { code: string }) {
         onCapacityChange={refresh}
       />
 
-      <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
-        <main className="flex-1 overflow-y-auto p-5">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+        <main className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
           <div className="mx-auto max-w-3xl">
             <ParticipantList code={code} isOwner={isOwner} />
           </div>
         </main>
 
-        <aside className="h-72 border-t border-white/5 lg:h-auto lg:w-80 lg:border-l lg:border-t-0">
+        <aside className="h-52 shrink-0 border-t border-white/10 lg:h-auto lg:w-80 lg:shrink lg:border-l lg:border-t-0">
           <ChatPanel />
         </aside>
       </div>

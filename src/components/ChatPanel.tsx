@@ -28,7 +28,7 @@ export function ChatPanel() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 border-b border-white/5 px-4 py-3 text-sm font-medium text-slate-300">
+      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3 text-sm font-medium text-slate-300">
         <MessagesSquare size={16} className="text-accent-glow" />
         Chat
       </div>
@@ -51,7 +51,7 @@ export function ChatPanel() {
 
       <form
         onSubmit={submit}
-        className="flex items-center gap-2 border-t border-white/5 p-3"
+        className="flex items-center gap-2 border-t border-white/10 p-3"
       >
         <Input
           value={draft}

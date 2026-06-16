@@ -15,7 +15,10 @@ export function ControlBar() {
   });
 
   return (
-    <div className="flex items-center justify-center gap-3 border-t border-white/5 bg-ink-800/60 px-5 py-3 backdrop-blur">
+    <div
+      className="flex shrink-0 items-center justify-center gap-3 border-t border-white/10 bg-ink-800/80 px-5 pt-3 backdrop-blur"
+      style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+    >
       <button
         onClick={() => toggle()}
         className={cn(

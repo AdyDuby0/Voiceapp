@@ -38,7 +38,7 @@ export function RoomHeader({
   }
 
   return (
-    <header className="flex items-center justify-between gap-3 border-b border-white/5 px-5 py-3">
+    <header className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
       <div className="flex items-baseline gap-2">
         <span className="text-sm text-slate-400">Room</span>
         <span className="font-mono text-lg tracking-widest text-white">
