@@ -54,6 +54,36 @@ body {
   transition: opacity 0.4s ease;
   will-change: transform;
 }
+
+/* Comet "trail of light" that streams behind the cursor with a watery tint.
+   Each node is sized/faded along the tail via inline styles. */
+.cursor-trail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  border-radius: 9999px;
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    rgba(186, 230, 253, 0.55),
+    rgba(129, 140, 248, 0.22) 55%,
+    transparent 72%
+  );
+  filter: blur(3px);
+  will-change: transform, opacity;
+}
+@media (hover: none) {
+  .cursor-trail {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cursor-trail {
+    display: none;
+  }
+}
 @media (hover: none) {
   .cursor-glow {
     display: none;
