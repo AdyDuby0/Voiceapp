@@ -7,11 +7,11 @@ const TRAIL = 16;
 // Easing per node: lower = longer, lazier trail.
 const EASE = 0.32;
 
-// A soft glow that follows the cursor, plus a flowing "trail of light" that
-// streams behind it with a watery tint. Purely decorative, pointer-events-none,
-// and hidden on touch / reduced-motion (via CSS).
+// A flowing "trail of light" that streams behind the cursor with a watery tint.
+// It renders at z-index -1 (just above the page background, behind all content)
+// so it stays hidden behind buttons and cards. Pointer-events-none; hidden on
+// touch / reduced-motion via CSS.
 export function CursorGlow() {
-  const headRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
@@ -23,22 +23,15 @@ export function CursorGlow() {
     const onMove = (e: MouseEvent) => {
       target.x = e.clientX;
       target.y = e.clientY;
-      if (!shown) {
-        shown = true;
-        if (headRef.current) headRef.current.style.opacity = "1";
-      }
+      shown = true;
     };
 
     const onLeave = () => {
       shown = false;
-      if (headRef.current) headRef.current.style.opacity = "0";
       nodeRefs.current.forEach((el) => el && (el.style.opacity = "0"));
     };
 
     const tick = () => {
-      if (headRef.current) {
-        headRef.current.style.transform = `translate3d(${target.x}px, ${target.y}px, 0)`;
-      }
       // Each node eases toward the one ahead of it, forming a flowing tail.
       let prevX = target.x;
       let prevY = target.y;
@@ -69,7 +62,6 @@ export function CursorGlow() {
 
   return (
     <>
-      <div ref={headRef} className="cursor-glow" aria-hidden />
       {Array.from({ length: TRAIL }).map((_, i) => {
         // Taper the size from head to tail.
         const size = 26 - (i / TRAIL) * 18;

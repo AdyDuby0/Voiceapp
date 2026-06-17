@@ -16,6 +16,9 @@ body {
   background-image:
     radial-gradient(60rem 60rem at 10% -10%, rgba(99, 102, 241, 0.12), transparent 60%),
     radial-gradient(50rem 50rem at 110% 10%, rgba(129, 140, 248, 0.08), transparent 55%);
+  /* Own stacking context so the cursor trail (z-index: -1) sits above the page
+     background but behind all content. */
+  isolation: isolate;
 }
 
 /* Thin, unobtrusive scrollbars to keep the UI calm. */
@@ -32,37 +35,16 @@ body {
   border-radius: 9999px;
 }
 
-/* A soft light glow that follows the cursor. Purely additive light (no blur),
-   so it never affects the readability of anything underneath it. */
-.cursor-glow {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 360px;
-  height: 360px;
-  margin: -180px 0 0 -180px; /* center the circle on the cursor */
-  pointer-events: none;
-  z-index: 9999;
-  border-radius: 9999px;
-  opacity: 0;
-  background: radial-gradient(
-    circle,
-    rgba(129, 140, 248, 0.12),
-    rgba(99, 102, 241, 0.05) 45%,
-    transparent 65%
-  );
-  transition: opacity 0.4s ease;
-  will-change: transform;
-}
-
 /* Comet "trail of light" that streams behind the cursor with a watery tint.
-   Each node is sized/faded along the tail via inline styles. */
+   Sits at z-index -1 — just above the page background, behind all content — so
+   it disappears behind buttons and cards. Each node is sized/faded via inline
+   styles. */
 .cursor-trail {
   position: fixed;
   top: 0;
   left: 0;
   pointer-events: none;
-  z-index: 9998;
+  z-index: -1;
   border-radius: 9999px;
   opacity: 0;
   background: radial-gradient(
