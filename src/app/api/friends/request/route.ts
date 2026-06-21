@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readSession } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { rateLimit, tooManyRequests } from "@/lib/rateLimit";
 
 // Sends a friend request to { userId }. If that person had already requested
 // you, this accepts their request instead (so the two cases converge).
@@ -10,6 +11,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "You must be logged in." }, { status: 401 });
   }
   const me = session.userId;
+
+  // Throttle friend requests per user to prevent spam.
+  const limit = rateLimit(`friendreq:${me}`, 30, 60 * 60 * 1000);
+  if (!limit.ok) return tooManyRequests(limit.retryAfter);
 
   let body: { userId?: unknown };
   try {

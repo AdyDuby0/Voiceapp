@@ -7,10 +7,15 @@ import {
   sessionCookieOptions,
 } from "@/lib/auth";
 import { validateUsername, validatePassword } from "@/lib/validation";
+import { rateLimit, clientIp, tooManyRequests } from "@/lib/rateLimit";
 
 // Creates a new account: validates input, enforces unique usernames, stores a
 // bcrypt-hashed password, and logs the user in by setting the session cookie.
 export async function POST(req: NextRequest) {
+  // Limit account creation per IP to curb mass sign-ups.
+  const limit = rateLimit(`register:${clientIp(req)}`, 5, 30 * 60 * 1000);
+  if (!limit.ok) return tooManyRequests(limit.retryAfter);
+
   let body: { username?: unknown; password?: unknown; confirmPassword?: unknown };
   try {
     body = await req.json();

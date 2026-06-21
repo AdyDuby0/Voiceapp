@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readSession } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { areFriends } from "@/lib/friends";
+import { rateLimit, tooManyRequests } from "@/lib/rateLimit";
 
 const MAX_BODY = 2000;
 
@@ -86,6 +87,10 @@ export async function POST(
   }
   const { userId: other } = await params;
   const me = session.userId;
+
+  // Throttle message sends per user to prevent flooding.
+  const limit = rateLimit(`dm:${me}`, 30, 30 * 1000);
+  if (!limit.ok) return tooManyRequests(limit.retryAfter);
 
   if (other === me) {
     return NextResponse.json({ error: "You can't message yourself." }, { status: 400 });

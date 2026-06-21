@@ -106,6 +106,27 @@ create table if not exists public.room_bans (
 );
 ```
 
+### 🔒 Lock down the tables (run this — important)
+
+The app only ever reads/writes the database from the server using the
+**service-role key**, which **bypasses Row-Level Security**. So enabling RLS with
+**no policies** blocks all direct access via the public anon key while leaving the
+app fully working. Run this once after creating the tables above:
+
+```sql
+-- Enable Row-Level Security on every table. No policies = deny all direct
+-- (anon/authenticated) access; the server's service-role key still has full
+-- access, so the app is unaffected.
+alter table public.users          enable row level security;
+alter table public.messages       enable row level security;
+alter table public.friend_requests enable row level security;
+alter table public.rooms          enable row level security;
+alter table public.room_bans      enable row level security;
+```
+
+> After running this, sanity-check that the app still works (sign in, send a
+> message). It should — the server uses the service-role key, which ignores RLS.
+
 ## 4. Fill in your local env file
 
 Open `.env.local` (copy it from `.env.example` if you haven't) and set:

@@ -6,11 +6,16 @@ import {
   SESSION_COOKIE,
   sessionCookieOptions,
 } from "@/lib/auth";
+import { rateLimit, clientIp, tooManyRequests } from "@/lib/rateLimit";
 
 // Logs a user in: looks them up case-insensitively, verifies the password, and
 // sets the session cookie. Errors are deliberately vague ("invalid username or
 // password") so we don't reveal whether a username exists.
 export async function POST(req: NextRequest) {
+  // Throttle login attempts per IP to blunt brute-force.
+  const limit = rateLimit(`login:${clientIp(req)}`, 10, 5 * 60 * 1000);
+  if (!limit.ok) return tooManyRequests(limit.retryAfter);
+
   let body: { username?: unknown; password?: unknown };
   try {
     body = await req.json();
