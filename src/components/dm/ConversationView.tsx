@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, SendHorizonal } from "lucide-react";
 import { useAuth } from "../auth/AuthProvider";
+import { useDm } from "./DmProvider";
 import { Avatar } from "../ui/Avatar";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
@@ -18,6 +19,7 @@ export function ConversationView({
   onBack: () => void;
 }) {
   const { user } = useAuth();
+  const { markRead } = useDm();
   const me = user?.id;
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -67,10 +69,13 @@ export function ConversationView({
     };
   }, [partner.id, merge]);
 
-  // Keep the latest message in view.
+  // Keep the latest message in view, and mark the conversation read as messages
+  // arrive while it's open.
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [messages]);
+    const last = messages[messages.length - 1];
+    if (last) markRead(partner.id, new Date(last.createdAt).getTime());
+  }, [messages, partner.id, markRead]);
 
   async function send(e: React.FormEvent) {
     e.preventDefault();

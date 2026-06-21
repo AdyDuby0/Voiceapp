@@ -6,11 +6,13 @@ import { Avatar } from "../ui/Avatar";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { ConversationView } from "./ConversationView";
+import { useDm } from "./DmProvider";
 import type { FriendsData, FriendStatus, UserSummary } from "@/lib/types";
 
 const EMPTY: FriendsData = { friends: [], incoming: [], outgoing: [] };
 
 export function DmPanel({ onClose }: { onClose: () => void }) {
+  const { isUnread, markRead } = useDm();
   const [activeUser, setActiveUser] = useState<UserSummary | null>(null);
   const [data, setData] = useState<FriendsData>(EMPTY);
   const [query, setQuery] = useState("");
@@ -133,7 +135,14 @@ export function DmPanel({ onClose }: { onClose: () => void }) {
                     return (
                       <Row key={u.id} user={u}>
                         {status === "friend" ? (
-                          <Button size="sm" variant="secondary" onClick={() => setActiveUser(u)}>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => {
+                              setActiveUser(u);
+                              markRead(u.id);
+                            }}
+                          >
                             Message
                           </Button>
                         ) : status === "outgoing" ? (
@@ -189,13 +198,19 @@ export function DmPanel({ onClose }: { onClose: () => void }) {
                     data.friends.map((f) => (
                       <button
                         key={f.id}
-                        onClick={() => setActiveUser(f)}
+                        onClick={() => {
+                          setActiveUser(f);
+                          markRead(f.id);
+                        }}
                         className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/5"
                       >
                         <Avatar name={f.username} src={f.avatarUrl} size={40} />
-                        <span className="truncate text-sm font-medium text-slate-100">
+                        <span className="flex-1 truncate text-sm font-medium text-slate-100">
                           {f.username}
                         </span>
+                        {isUnread(f.id) && (
+                          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
+                        )}
                       </button>
                     ))
                   ) : (

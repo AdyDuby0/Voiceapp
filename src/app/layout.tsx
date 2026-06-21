@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { DmProvider } from "@/components/dm/DmProvider";
 import { CursorGlow } from "@/components/CursorGlow";
 
 export const metadata: Metadata = {
@@ -18,7 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <CursorGlow />
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <DmProvider>{children}</DmProvider>
+        </AuthProvider>
       </body>
     </html>
   );
