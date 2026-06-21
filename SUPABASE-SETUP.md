@@ -106,6 +106,14 @@ create table if not exists public.room_bans (
 );
 ```
 
+### Presence (online/offline for friends)
+
+Adds a `last_seen` column the app updates via a heartbeat:
+
+```sql
+alter table public.users add column if not exists last_seen timestamptz;
+```
+
 ### 🔒 Lock down the tables (run this — important)
 
 The app only ever reads/writes the database from the server using the

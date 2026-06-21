@@ -89,6 +89,16 @@ export function DmProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(timer);
   }, [user, refresh]);
 
+  // Presence heartbeat: tell the server we're active so friends see us online.
+  useEffect(() => {
+    if (!user) return;
+    const ping = () =>
+      fetch("/api/presence", { method: "POST" }).catch(() => {});
+    ping();
+    const timer = setInterval(ping, 30000);
+    return () => clearInterval(timer);
+  }, [user]);
+
   const markRead = useCallback((userId: string, ts?: number) => {
     const t = ts ?? Date.now();
     setReads((prev) => {

@@ -25,7 +25,16 @@ export type UserSummary = {
   id: string;
   username: string;
   avatarUrl: string | null;
+  lastSeen?: string | null; // ISO timestamp of last heartbeat (presence)
 };
+
+// A friend is considered online if their last heartbeat was within this window.
+export const ONLINE_WINDOW_MS = 60 * 1000;
+
+export function isOnline(lastSeen?: string | null): boolean {
+  if (!lastSeen) return false;
+  return Date.now() - new Date(lastSeen).getTime() < ONLINE_WINDOW_MS;
+}
 
 // A single direct message between two users.
 export type DirectMessage = {

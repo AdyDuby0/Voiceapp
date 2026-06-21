@@ -7,6 +7,7 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { ConversationView } from "./ConversationView";
 import { useDm } from "./DmProvider";
+import { isOnline } from "@/lib/types";
 import type { FriendsData, FriendStatus, UserSummary } from "@/lib/types";
 
 const EMPTY: FriendsData = { friends: [], incoming: [], outgoing: [] };
@@ -193,26 +194,50 @@ export function DmPanel({ onClose }: { onClose: () => void }) {
 
                   <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Friends
+                    {data.friends.filter((f) => isOnline(f.lastSeen)).length >
+                      0 && (
+                      <span className="ml-1.5 text-emerald-400">
+                        · {data.friends.filter((f) => isOnline(f.lastSeen)).length}{" "}
+                        online
+                      </span>
+                    )}
                   </p>
                   {data.friends.length > 0 ? (
-                    data.friends.map((f) => (
-                      <button
-                        key={f.id}
-                        onClick={() => {
-                          setActiveUser(f);
-                          markRead(f.id);
-                        }}
-                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/5"
-                      >
-                        <Avatar name={f.username} src={f.avatarUrl} size={40} />
-                        <span className="flex-1 truncate text-sm font-medium text-slate-100">
-                          {f.username}
-                        </span>
-                        {isUnread(f.id) && (
-                          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
-                        )}
-                      </button>
-                    ))
+                    [...data.friends]
+                      .sort(
+                        (a, b) =>
+                          Number(isOnline(b.lastSeen)) -
+                          Number(isOnline(a.lastSeen)),
+                      )
+                      .map((f) => {
+                        const online = isOnline(f.lastSeen);
+                        return (
+                          <button
+                            key={f.id}
+                            onClick={() => {
+                              setActiveUser(f);
+                              markRead(f.id);
+                            }}
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/5"
+                          >
+                            <span className="relative shrink-0">
+                              <Avatar name={f.username} src={f.avatarUrl} size={40} />
+                              <span
+                                className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-ink-800 ${
+                                  online ? "bg-emerald-500" : "bg-slate-600"
+                                }`}
+                                title={online ? "Online" : "Offline"}
+                              />
+                            </span>
+                            <span className="flex-1 truncate text-sm font-medium text-slate-100">
+                              {f.username}
+                            </span>
+                            {isUnread(f.id) && (
+                              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
+                            )}
+                          </button>
+                        );
+                      })
                   ) : (
                     <p className="mt-4 px-4 text-center text-sm text-slate-500">
                       No friends yet. Search above to add someone.

@@ -46,12 +46,17 @@ export async function GET() {
   const ids = [...new Set([...friendIds, ...incoming.map((i) => i.userId)])];
   const profiles = new Map<
     string,
-    { id: string; username: string; avatar_url: string | null }
+    {
+      id: string;
+      username: string;
+      avatar_url: string | null;
+      last_seen: string | null;
+    }
   >();
   if (ids.length > 0) {
     const { data: users } = await supabase
       .from("users")
-      .select("id, username, avatar_url")
+      .select("id, username, avatar_url, last_seen")
       .in("id", ids);
     for (const u of users ?? []) profiles.set(u.id, u);
   }
@@ -59,7 +64,12 @@ export async function GET() {
   const toSummary = (id: string) => {
     const u = profiles.get(id);
     return u
-      ? { id: u.id, username: u.username, avatarUrl: u.avatar_url }
+      ? {
+          id: u.id,
+          username: u.username,
+          avatarUrl: u.avatar_url,
+          lastSeen: u.last_seen,
+        }
       : null;
   };
 
