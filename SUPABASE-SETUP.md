@@ -114,6 +114,15 @@ Adds a `last_seen` column the app updates via a heartbeat:
 alter table public.users add column if not exists last_seen timestamptz;
 ```
 
+### Room auto-cleanup
+
+Adds the activity timestamp used to delete empty rooms ~1 hour after the last
+person leaves:
+
+```sql
+alter table public.rooms add column if not exists last_active_at timestamptz default now();
+```
+
 ### 🔒 Lock down the tables (run this — important)
 
 The app only ever reads/writes the database from the server using the

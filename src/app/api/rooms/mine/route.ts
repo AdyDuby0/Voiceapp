@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readSession } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { pruneStaleRoomsThrottled } from "@/lib/rooms";
 
 // Rooms owned by the signed-in user, so they can jump back into ones they made.
 export async function GET() {
@@ -16,6 +17,10 @@ export async function GET() {
     const message = err instanceof Error ? err.message : "Server error.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
+
+  // Opportunistic (throttled) cleanup so stale rooms get pruned even without
+  // the cron, and the list the owner sees is current.
+  await pruneStaleRoomsThrottled(supabase);
 
   const { data } = await supabase
     .from("rooms")

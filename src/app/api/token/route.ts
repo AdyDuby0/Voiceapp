@@ -97,6 +97,12 @@ export async function POST(req: NextRequest) {
           // Room not created in LiveKit yet (0 participants) — allow.
         }
       }
+
+      // Mark the room active so the idle-cleanup clock restarts on each join.
+      await supabase
+        .from("rooms")
+        .update({ last_active_at: new Date().toISOString() })
+        .eq("code", room);
     }
   } catch {
     // Supabase not configured / unreachable — fall back to no enforcement.
