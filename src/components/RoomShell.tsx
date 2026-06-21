@@ -4,6 +4,7 @@ import { RoomHeader } from "./RoomHeader";
 import { ParticipantList } from "./ParticipantList";
 import { ChatPanel } from "./ChatPanel";
 import { ControlBar } from "./ControlBar";
+import { ScreenShareView } from "./ScreenShareView";
 import { useRoomInfo } from "@/hooks/useRoomInfo";
 import { useAuth } from "./auth/AuthProvider";
 
@@ -27,6 +28,7 @@ export function RoomShell({ code }: { code: string }) {
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
         <main className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
           <div className="mx-auto max-w-3xl">
+            <ScreenShareView />
             <ParticipantList code={code} isOwner={isOwner} />
           </div>
         </main>

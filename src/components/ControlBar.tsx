@@ -2,17 +2,18 @@
 
 import { useTrackToggle } from "@livekit/components-react";
 import { Track } from "livekit-client";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, ScreenShare, ScreenShareOff } from "lucide-react";
 import { cn } from "./ui/cn";
 import { PushToTalk } from "./PushToTalk";
+import { DeviceSettings } from "./DeviceSettings";
 
-// Bottom control bar: microphone mute toggle + push-to-talk mode.
-// The mic toggle uses LiveKit's useTrackToggle so publish/mute state stays
-// authoritative on the server.
+// Bottom control bar: mic mute, screen share, push-to-talk, and device settings.
+// Toggles use LiveKit's useTrackToggle so publish state stays authoritative.
 export function ControlBar() {
   const { toggle, enabled } = useTrackToggle({
     source: Track.Source.Microphone,
   });
+  const screen = useTrackToggle({ source: Track.Source.ScreenShare });
 
   return (
     <div
@@ -35,7 +36,28 @@ export function ControlBar() {
         {enabled ? <Mic size={20} /> : <MicOff size={20} />}
       </button>
 
+      <button
+        onClick={() => screen.toggle()}
+        className={cn(
+          "flex h-12 w-12 items-center justify-center rounded-full transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-glow/60",
+          screen.enabled
+            ? "bg-accent text-white hover:bg-accent-soft"
+            : "bg-ink-600 text-slate-100 hover:bg-ink-500",
+        )}
+        aria-pressed={screen.enabled}
+        aria-label={screen.enabled ? "Stop sharing screen" : "Share screen"}
+        title={screen.enabled ? "Stop sharing" : "Share your screen"}
+      >
+        {screen.enabled ? (
+          <ScreenShareOff size={20} />
+        ) : (
+          <ScreenShare size={20} />
+        )}
+      </button>
+
       <PushToTalk />
+      <DeviceSettings />
     </div>
   );
 }
