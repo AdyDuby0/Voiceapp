@@ -1,5 +1,6 @@
 import { Mic, MessagesSquare, Link2 } from "lucide-react";
 import { JoinForm } from "@/components/JoinForm";
+import { MyRooms } from "@/components/MyRooms";
 import { Footer } from "@/components/Footer";
 import { AccountButton } from "@/components/auth/AccountButton";
 import { MessagesButton } from "@/components/dm/MessagesButton";
@@ -79,6 +80,7 @@ export default function Home() {
             Pick a name, then create or join a room.
           </p>
           <JoinForm />
+          <MyRooms />
         </div>
       </section>
       </main>
