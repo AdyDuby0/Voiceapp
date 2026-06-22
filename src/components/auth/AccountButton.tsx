@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Crown } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import { AuthModal } from "./AuthModal";
 import { ProfileModal } from "./ProfileModal";
@@ -31,6 +31,13 @@ export function AccountButton() {
           <span className="max-w-[8rem] truncate text-sm font-medium text-slate-100">
             {user.username}
           </span>
+          {user.isPro && (
+            <Crown
+              size={14}
+              className="shrink-0 text-amber-400"
+              aria-label="Pro"
+            />
+          )}
         </button>
         {profileOpen && <ProfileModal onClose={() => setProfileOpen(false)} />}
       </>

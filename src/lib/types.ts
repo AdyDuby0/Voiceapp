@@ -18,6 +18,7 @@ export type AccountUser = {
   id: string;
   username: string;
   avatarUrl: string | null;
+  isPro: boolean;
 };
 
 // A user as shown in search results / conversation headers.

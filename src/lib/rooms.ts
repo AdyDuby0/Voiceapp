@@ -15,11 +15,20 @@ export async function pruneStaleRooms(
 
   const { data: stale } = await supabase
     .from("rooms")
-    .select("code")
+    .select("code, owner_id")
     .lt("last_active_at", cutoff)
     .limit(50);
 
   if (!stale || stale.length === 0) return 0;
+
+  // Pro members keep their rooms permanently — exempt them from cleanup.
+  const ownerIds = [...new Set(stale.map((r) => r.owner_id))];
+  const { data: proOwners } = await supabase
+    .from("users")
+    .select("id")
+    .in("id", ownerIds)
+    .eq("is_pro", true);
+  const proSet = new Set((proOwners ?? []).map((u) => u.id));
 
   // If LiveKit isn't reachable we can't confirm emptiness — skip rather than
   // risk deleting an active room.
@@ -31,7 +40,8 @@ export async function pruneStaleRooms(
   }
 
   let deleted = 0;
-  for (const { code } of stale) {
+  for (const { code, owner_id } of stale) {
+    if (proSet.has(owner_id)) continue; // Pro perk: permanent rooms
     let occupied = false;
     try {
       const present = await svc.listParticipants(code);

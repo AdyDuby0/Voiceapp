@@ -1,20 +1,47 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { X, Upload, LogOut } from "lucide-react";
+import { X, Upload, LogOut, Crown, Check } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import { Avatar } from "../ui/Avatar";
 import { Button } from "../ui/Button";
 
 const MAX_BYTES = 2 * 1024 * 1024; // 2 MB
 
+const PRO_PERKS = [
+  "Keep your rooms permanently (no auto-delete)",
+  "Bigger rooms & HD screen share",
+  "A Pro badge on your profile",
+  "Support the project ❤️",
+];
+
 export function ProfileModal({ onClose }: { onClose: () => void }) {
   const { user, refresh, logout } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [billingBusy, setBillingBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!user) return null;
+
+  // Redirect to Stripe Checkout (upgrade) or the billing portal (manage).
+  async function billing(endpoint: "checkout" | "portal") {
+    setError(null);
+    setBillingBusy(true);
+    try {
+      const res = await fetch(`/api/billing/${endpoint}`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      setError(data.error ?? "Billing is not available right now.");
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setBillingBusy(false);
+    }
+  }
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -94,6 +121,53 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
             {error}
           </p>
         )}
+
+        {/* Voiceapp Pro */}
+        <div className="mt-5 rounded-xl border border-accent/30 bg-accent/5 p-4">
+          {user.isPro ? (
+            <>
+              <div className="flex items-center gap-2 text-sm font-semibold text-accent-glow">
+                <Crown size={16} />
+                Voiceapp Pro — active
+              </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="mt-3 w-full"
+                disabled={billingBusy}
+                onClick={() => billing("portal")}
+              >
+                {billingBusy ? "Opening…" : "Manage subscription"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                <Crown size={16} className="text-accent-glow" />
+                Upgrade to Voiceapp Pro
+              </div>
+              <ul className="mt-2 space-y-1">
+                {PRO_PERKS.map((perk) => (
+                  <li
+                    key={perk}
+                    className="flex gap-1.5 text-xs text-slate-300"
+                  >
+                    <Check size={14} className="mt-0.5 shrink-0 text-accent-glow" />
+                    {perk}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                size="sm"
+                className="mt-3 w-full"
+                disabled={billingBusy}
+                onClick={() => billing("checkout")}
+              >
+                {billingBusy ? "Opening…" : "Go Pro"}
+              </Button>
+            </>
+          )}
+        </div>
 
         <button
           onClick={() => {

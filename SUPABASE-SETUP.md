@@ -123,6 +123,18 @@ person leaves:
 alter table public.rooms add column if not exists last_active_at timestamptz default now();
 ```
 
+### Pro subscriptions (Stripe)
+
+Adds the columns that track each user's Voiceapp Pro status:
+
+```sql
+alter table public.users add column if not exists stripe_customer_id text;
+alter table public.users add column if not exists is_pro boolean not null default false;
+alter table public.users add column if not exists pro_until timestamptz;
+```
+
+See **STRIPE-SETUP.md** for the Stripe side (product, price, webhook, env vars).
+
 ### 🔒 Lock down the tables (run this — important)
 
 The app only ever reads/writes the database from the server using the
